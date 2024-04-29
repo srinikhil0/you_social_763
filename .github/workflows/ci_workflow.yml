@@ -1,4 +1,4 @@
-name: OWASP ZAP Scan
+name: OWASP ZAP CI Scan
 
 on:
   push:
@@ -7,18 +7,31 @@ on:
   pull_request:
     branches:
       - main
+  
+  workflow_dispatch:
 
 jobs:
-  zap_scan:
+  build:
     runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Start OWASP ZAP
-      uses: zaproxy/action-baseline@v0.2.0
-      with:
-        target: 'https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/'  # Update this to your application URL
-        cmd_options: '-a -j -J report_json.json -w report_md.md -r report_html.html'
-        docker_name: 'owasp/zap2docker-stable'  # Ensure this is the correct Docker image
+    name: sanity check of git actions
     
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Run a one-line script
+      run: echo no error. Do the necessary build steps here.
+    
+  scans:
+    runs-on: ubuntu-latest
+    name: Zap API Scan
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: Log current directory
+        run: echo ${pwd}
+      - name: Pull ZAP OWASP Image
+        run: docker pull owasp/zap2docker-weekly
+      - name: Run ZAP API Scan
+        run: | 
+          sudo docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-weekly zap-api-scan.py -t openapi.json -f openapi -c api-scan.conf
