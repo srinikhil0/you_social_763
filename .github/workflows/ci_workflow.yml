@@ -29,9 +29,9 @@ jobs:
         run: echo ${pwd}
       - name: Pull ZAP OWASP Image
         run: docker pull ictu/zap2docker-weekly
-      - name: Run ZAP API Scan
-        run: | 
-          sudo docker run -v $(pwd):/zap/wrk/:rw -t ictu/zap2docker-weekly zap-api-scan.py -t openapi.json -f openapi -r zap_report.html
+      - name: Run ZAP Scan
+        run: |
+          docker run --rm -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py -t https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/ -r zap_report.html
       - name: Upload ZAP Report
         uses: actions/upload-artifact@v2
         with:
