@@ -1,0 +1,5 @@
+config.env
+email.env
+.env
+assets/fontawesome/
+.idea
