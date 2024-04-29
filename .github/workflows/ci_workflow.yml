@@ -1,35 +1,20 @@
-name: "ZAP CI Scan"
+name: OWASP ZAP Scan
 
-on:
-  push: 
-    branches: [ development ]
-  pull_request:
-    branches: [ development ]
-
-  workflow_dispatch:
-
+on: [push]
 
 jobs:
-  build:
+  zap_scan:
     runs-on: ubuntu-latest
-    name: Sanity check of git actions
-
-  steps:
-    - uses: actions/checkout@v3
-    - name: Run a one-line script
-      run: echo no error. Do the necessary build steps here.
-  
-  scans:
-    runs-on: ubuntu-latest
-    name: Zap CI Scan
-
-    steps: 
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Log current directory
-        run: echo ${pwd}
-      - name: Pull Zap Owasp Image 
-        run: docker pull owasp/zap2docker-weekly
-      - name: Run ZAP API Scan
-        run: |
-          sudo docker run -v ${pwd}:/zap/wrk/:rw -t owasp/zap2docker-weekly zap-api-scan.py -t openapi.json -f openapi -c api-scan.conf
+    name: Scan the web application
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: main
+      - name: ZAP Scan
+        uses: zaproxy/action-baseline@v0.6.1
+        with:
+          docker_name: 'owasp/zap2docker-stable'
+          target: 'https://3d9a-38-42-234-45.ngrok-free.app/you_social_763/'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
