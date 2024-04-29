@@ -1,4 +1,4 @@
-name: ZAP CI Scan
+name: "ZAP CI Scan"
 
 on:
   push: 
