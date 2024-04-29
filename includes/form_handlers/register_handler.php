@@ -4,31 +4,35 @@ require_once 'vendor/autoload.php'; // Load PHPMailer
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 function sendVerificationEmail($email, $vkey) {
-  $mail = new PHPMailer(true);
-  try {
-      $mail->isSMTP();
-      $mail->Host = 'smtp.gmail.com'; // Change to your SMTP server
-      $mail->SMTPAuth = true;
-      $mail->Username = 'srinikhilrg@gmail.com'; // Use environment variable or configuration
-      $mail->Password = 'xvwjpxdrcbhvxztj'; // Use environment variable or configuration
-      $mail->SMTPSecure = 'tls';
-      $mail->Port = 587;
+    $mail = new PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host = $_ENV['SMTP_HOST'];
+        $mail->SMTPAuth = true;
+        $mail->Username = $_ENV['SMTP_USER'];
+        $mail->Password = $_ENV['SMTP_PASSWORD'];
+        $mail->SMTPSecure = $_ENV['SMTP_SECURE'];
+        $mail->Port = $_ENV['SMTP_PORT'];
 
-      $mail->setFrom('no-reply@yourdomain.com', 'Your Site Name');
-      $mail->addAddress($email);
+        $mail->setFrom($_ENV['SMTP_FROM_EMAIL'], $_ENV['SMTP_FROM_NAME']);
+        $mail->addAddress($email);
 
-      $mail->isHTML(true);
-      $mail->Subject = 'Account Verification';
-      $mail->Body    = "Please click on the following link to verify your account: <a href='http://localhost/you_social_763/verification/verify.php?vkey=$vkey'>Verify Account</a>";
-      $mail->AltBody = 'Please use the following link to verify your account: http://localhost/you_social_763/verification/verify.php?vkey=' . $vkey;
+        $mail->isHTML(true);
+        $mail->Subject = 'Account Verification';
+        $mail->Body    = "Please click on the following link to verify your account: <a href='http://localhost/you_social_763/verification/verify.php?vkey=$vkey'>Verify Account</a>";
+        $mail->AltBody = 'Please use the following link to verify your account: http://localhost/you_social_763/verification/verify.php?vkey=' . $vkey;
 
-      $mail->send();
-      echo 'Verification email has been sent.';
-  } catch (Exception $e) {
-      echo 'Verification email could not be sent. Mailer Error: ' . $mail->ErrorInfo;
-  }
+        $mail->send();
+        echo 'Verification email has been sent.';
+    } catch (Exception $e) {
+        echo 'Verification email could not be sent. Mailer Error: ' . $mail->ErrorInfo;
+    }
 }
+
 
 //Declarig variables to prevent errors
 $first_name = ""; //first name
