@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - main
-  
   workflow_dispatch:
 
 jobs:
@@ -17,16 +16,14 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-
     - name: Run a one-line script
       run: echo no error. Do the necessary build steps here.
     
   scans:
     runs-on: ubuntu-latest
     name: Zap API Scan
-
     steps:
-      - name: checkout code
+      - name: Checkout code
         uses: actions/checkout@v2
       - name: Log current directory
         run: echo ${pwd}
@@ -34,4 +31,9 @@ jobs:
         run: docker pull ictu/zap2docker-weekly
       - name: Run ZAP API Scan
         run: | 
-          sudo docker run -v $(pwd):/zap/wrk/:rw -t ictu/zap2docker-weekly zap-api-scan.py -t openapi.json -f openapi -c api-scan.conf
+          sudo docker run -v $(pwd):/zap/wrk/:rw -t ictu/zap2docker-weekly zap-api-scan.py -t openapi.json -f openapi -r zap_report.html
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: ZAP-Report
+          path: zap_report.html
