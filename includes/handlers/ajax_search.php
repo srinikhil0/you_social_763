@@ -7,42 +7,48 @@ $userLoggedIn = $_POST['userLoggedIn'];
 
 $names = explode(" ", $query);
 
-//If query contains an underscore, assume user is searching for usernames
-if(strpos($query, '_') !== false) 
-	$usersReturnedQuery = mysqli_query($con, "SELECT * FROM users WHERE username LIKE '$query%' AND user_closed='no' LIMIT 8");
-//If there are two words, assume they are first and last names respectively
-else if(count($names) == 2)
-	$usersReturnedQuery = mysqli_query($con, "SELECT * FROM users WHERE (username LIKE '$names[0]%' AND username LIKE '$names[1]%') AND user_closed='no' LIMIT 8");
-//If query has one word only, search first names or last names 
-else 
-	$usersReturnedQuery = mysqli_query($con, "SELECT * FROM users WHERE (username LIKE '$names[0]%' OR username LIKE '$names[0]%') AND user_closed='no' LIMIT 8");
+// Prepare the statement
+if(strpos($query, '_') !== false) {
+    $stmt = $con->prepare("SELECT * FROM users WHERE username LIKE ? AND user_closed='no' LIMIT 8");
+    $search_term = $query . '%';
+    $stmt->bind_param("s", $search_term);
+} else if(count($names) == 2) {
+    $stmt = $con->prepare("SELECT * FROM users WHERE (username LIKE ? AND username LIKE ?) AND user_closed='no' LIMIT 8");
+    $search_term_1 = $names[0] . '%';
+    $search_term_2 = $names[1] . '%';
+    $stmt->bind_param("ss", $search_term_1, $search_term_2);
+} else {
+    $stmt = $con->prepare("SELECT * FROM users WHERE (username LIKE ? OR username LIKE ?) AND user_closed='no' LIMIT 8");
+    $search_term = $names[0] . '%';
+    $stmt->bind_param("ss", $search_term, $search_term);
+}
 
+// Execute the statement
+$stmt->execute();
+$usersReturnedQuery = $stmt->get_result();
 
 if($query != ""){
+    while($row = mysqli_fetch_array($usersReturnedQuery)) {
+        $user = new User($con, $userLoggedIn);
 
-	while($row = mysqli_fetch_array($usersReturnedQuery)) {
-		$user = new User($con, $userLoggedIn);
+        if($row['username'] != $userLoggedIn)
+            $mutual_friends = $user->getMutualFriends($row['username']) . " friends in common";
+        else 
+            $mutual_friends = "";
 
-		if($row['username'] != $userLoggedIn)
-			$mutual_friends = $user->getMutualFriends($row['username']) . " friends in common";
-		else 
-			$mutual_friends = "";
+        echo "<div class='resultDisplay'>
+                <a href='" . $row['username'] . "' style='color: #1485BD'>
+                    <div class='liveSearchProfilePic'>
+                        <img src='" . $row['profile_pic'] ."'>
+                    </div>
 
-		echo "<div class='resultDisplay'>
-				<a href='" . $row['username'] . "' style='color: #1485BD'>
-					<div class='liveSearchProfilePic'>
-						<img src='" . $row['profile_pic'] ."'>
-					</div>
-
-					<div class='liveSearchText' style='color: #000'>
-						<p style='margin: 0; padding-top: 10px;'>". $row['username'] . "</p>	
-						<p id='grey'>" . $mutual_friends ."</p>
-					</div>
-				</a>
-				</div>";
-
-	}
-
+                    <div class='liveSearchText' style='color: #000'>
+                        <p style='margin: 0; padding-top: 10px;'>". $row['username'] . "</p>    
+                        <p id='grey'>" . $mutual_friends ."</p>
+                    </div>
+                </a>
+            </div>";
+    }
 }
 
 ?>

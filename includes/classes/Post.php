@@ -46,9 +46,10 @@ class Post {
 				$user_to = "none";
 
 			//insert post 
-			$query = mysqli_query($this->con, "INSERT INTO posts VALUES ('', '$body', '$added_by', '$user_to', '$date_added', 'no', 'no', '0', '0', '$imageName')");
-
-			$returned_id = mysqli_insert_id($this->con);
+			$stmt = $this->con->prepare("INSERT INTO posts (body, added_by, user_to, date_added, deleted, likes, dislikes, image) VALUES (?, ?, ?, ?, 'no', '0', '0', ?)");
+            $stmt->bind_param("sssss", $body, $added_by, $user_to, $date_added, $imageName);
+            $stmt->execute();
+            $returned_id = $stmt->insert_id;
 
 			//Insert notification
 			if($user_to != 'none') {
@@ -57,9 +58,10 @@ class Post {
 			}
 
 			//Update post count for user 
-			$num_posts = $this->user_obj->getNumPosts();
-			$num_posts++;
-			$update_query = mysqli_query($this->con, "UPDATE users SET num_posts='$num_posts' WHERE username='$added_by'");
+			$num_posts = $this->user_obj->getNumPosts() + 1;
+            $update_stmt = $this->con->prepare("UPDATE users SET num_posts = ? WHERE username = ?");
+            $update_stmt->bind_param("is", $num_posts, $added_by);
+            $update_stmt->execute();
 
 
 			$stopWords = "a about above across after again against all almost alone along already

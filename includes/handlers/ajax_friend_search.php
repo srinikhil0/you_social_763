@@ -8,13 +8,26 @@ $userLoggedIn = $_POST['userLoggedIn'];
 $names = explode(" ", $query);
 
 if(strpos($query, "_") !== false) {
-	$usersReturned = mysqli_query($con, "SELECT * FROM users WHERE username LIKE '$query%' AND user_closed='no' LIMIT 8");
+	$stmt = $con->prepare("SELECT * FROM users WHERE username LIKE ? AND user_closed='no' LIMIT 8");
+	$search_term = $query . '%';
+	$stmt->bind_param("s", $search_term);
+	$stmt->execute();
+	$usersReturned = $stmt->get_result();
 }
 else if(count($names) == 2) {
-	$usersReturned = mysqli_query($con, "SELECT * FROM users WHERE (username LIKE '%$names[0]%' AND username LIKE '%$names[1]%') AND user_closed='no' LIMIT 8");
+	$stmt = $con->prepare("SELECT * FROM users WHERE (username LIKE ? AND username LIKE ?) AND user_closed='no' LIMIT 8");
+	$search_term_1 = '%' . $names[0] . '%';
+	$search_term_2 = '%' . $names[1] . '%';
+	$stmt->bind_param("ss", $search_term_1, $search_term_2);
+	$stmt->execute();
+	$usersReturned = $stmt->get_result();
 }
 else {
-	$usersReturned = mysqli_query($con, "SELECT * FROM users WHERE (username LIKE '%$names[0]%' OR username LIKE '%$names[0]%') AND user_closed='no' LIMIT 8");
+	$stmt = $con->prepare("SELECT * FROM users WHERE (username LIKE ? OR username LIKE ?) AND user_closed='no' LIMIT 8");
+	$search_term = '%' . $names[0] . '%';
+	$stmt->bind_param("ss", $search_term, $search_term);
+	$stmt->execute();
+	$usersReturned = $stmt->get_result();
 }
 
 if($query != "") {
@@ -43,12 +56,7 @@ if($query != "") {
 						</div>
 					</a>
 				</div>";
-
-
 		}
-
-
 	}
 }
-
 ?>

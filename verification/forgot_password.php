@@ -1,7 +1,7 @@
 <?php
 
 require '../config/config.php';
-require '../mailer.php';
+
 
 $msg = "";
 

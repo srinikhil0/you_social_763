@@ -5,17 +5,23 @@ if(isset($_POST['update_details'])) {
 	$last_name = $_POST['last_name'];
 	$email = $_POST['email'];
 
-	$email_check = mysqli_query($con, "SELECT * FROM users WHERE email='$email'");
-	$row = mysqli_fetch_array($email_check);
-	$matched_user = $row['username'];
+	$stmt = $con->prepare("SELECT username FROM users WHERE email=?");
+	$stmt->bind_param("s", $email);
+	$stmt->execute();
+	$stmt->store_result();
+	$stmt->bind_result($matched_user);
+	$stmt->fetch();
 
-	if($matched_user == "" || $matched_user == $userLoggedIn) {
+	if(empty($matched_user) || $matched_user == $userLoggedIn) {
 		$message = "Details updated!<br><br>";
 
-		$query = mysqli_query($con, "UPDATE users SET first_name='$first_name', last_name='$last_name', email='$email' WHERE username='$userLoggedIn'");
+		$stmt = $con->prepare("UPDATE users SET first_name=?, last_name=?, email=? WHERE username=?");
+		$stmt->bind_param("ssss", $first_name, $last_name, $email, $userLoggedIn);
+		$stmt->execute();
 	}
 	else 
 		$message = "That email is already in use!<br><br>";
+
 }
 else 
 	$message = "";
@@ -29,11 +35,14 @@ if(isset($_POST['update_password'])) {
 	$new_password_1 = strip_tags($_POST['new_password_1']);
 	$new_password_2 = strip_tags($_POST['new_password_2']);
 
-	$password_query = mysqli_query($con, "SELECT pass FROM users WHERE username='$userLoggedIn'");
-	$row = mysqli_fetch_array($password_query);
-	$db_password = $row['pass'];
+	$stmt = $con->prepare("SELECT pass FROM users WHERE username=?");
+	$stmt->bind_param("s", $userLoggedIn);
+	$stmt->execute();
+	$stmt->store_result();
+	$stmt->bind_result($db_password);
+	$stmt->fetch();
 
-	if(password_verify($old_password, $row['pass']) == $db_password) {
+	if(password_verify($old_password, $db_password)) {
 
 		if($new_password_1 == $new_password_2) {
 
@@ -43,7 +52,9 @@ if(isset($_POST['update_password'])) {
 			}	
 			else {
 				$new_password_md5 = password_hash($new_password_1, PASSWORD_DEFAULT);
-				$password_query = mysqli_query($con, "UPDATE users SET pass='$new_password_md5' WHERE username='$userLoggedIn'");
+				$stmt = $con->prepare("UPDATE users SET pass=? WHERE username=?");
+				$stmt->bind_param("ss", $new_password_md5, $userLoggedIn);
+				$stmt->execute();
 				$password_message = "Password has been changed!<br><br>";
 			}
 

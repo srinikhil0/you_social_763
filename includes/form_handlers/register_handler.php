@@ -186,45 +186,43 @@ if(isset($_POST['sign_btn'])) {
 }
 
 if(isset($_POST['log_btn'])) {
- 
-	$email = filter_var($_POST['log_email'], FILTER_SANITIZE_EMAIL); //sanitize email
- 
-  $_SESSION['log_email'] = $email; //Store email into session variable 
-	$pass = $_POST['log_password']; //Get password
+  $email = filter_var($_POST['log_email'], FILTER_SANITIZE_EMAIL);
+  $_SESSION['log_email'] = $email;
+  $pass = $_POST['log_password'];
 
-	$check_database_query = mysqli_query($con, "SELECT * FROM users WHERE email='$email'");
-	$check_login_query = mysqli_num_rows($check_database_query);
- 
-	if($check_login_query == 1) {
-		while($row = mysqli_fetch_array($check_database_query)){
-			if(password_verify($pass, $row['pass'])){
-        $username = $row['username'];
-        setcookie('emailbun', $email, time()+31536000);
-        setcookie('passbun', $pass, time()+31536000);
- 
-				$user_closed_query = mysqli_query($con, "SELECT * FROM users WHERE email='$email' AND user_closed='yes'");
-				if(mysqli_num_rows($user_closed_query) == 1) {
-					$reopen_account = mysqli_query($con, "UPDATE users SET user_closed='no' WHERE email='$email'");
-				}
-		
-				$_SESSION['username'] = $username;
-				echo "Username: " .$username;
-				header("Location: index.php");
-				exit();
-			}
-		}
-		
-	}
-	else {
-		echo "Email or password were incorrect<br>";
-	}
-  
-  if (!empty($error_array)) {
-    foreach ($error_array as $error) {
-        echo $error . "<br>";
-    }
-}
+  $stmt = $con->prepare("SELECT id, username, pass FROM users WHERE email = ?");
+  $stmt->bind_param("s", $email);
+  $stmt->execute();
+  $result = $stmt->get_result();
 
+  if($result->num_rows == 1) {
+      $row = $result->fetch_assoc();
+      if(password_verify($pass, $row['pass'])) {
+          $username = $row['username'];
+          setcookie('emailbun', $email, time() + 31536000);
+          setcookie('passbun', $pass, time() + 31536000);
+
+          $stmt = $con->prepare("SELECT * FROM users WHERE email = ? AND user_closed = 'yes'");
+          $stmt->bind_param("s", $email);
+          $stmt->execute();
+          $result = $stmt->get_result();
+
+          if($result->num_rows == 1) {
+              $stmt = $con->prepare("UPDATE users SET user_closed = 'no' WHERE email = ?");
+              $stmt->bind_param("s", $email);
+              $stmt->execute();
+          }
+
+          $_SESSION['username'] = $username;
+          echo "Username: " . $username;
+          header("Location: index.php");
+          exit();
+      } else {
+          echo "Email or password was incorrect<br>";
+      }
+  } else {
+      echo "Email or password was incorrect<br>";
+  }
 }
  
 ?>
