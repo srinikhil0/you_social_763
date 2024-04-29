@@ -18,5 +18,7 @@ jobs:
     - name: Start OWASP ZAP
       uses: zaproxy/action-baseline@v0.2.0
       with:
-        target: 'https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/'  
-        cmd_options: '-a -j'
+        target: 'https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/'  # Update this to your application URL
+        cmd_options: '-a -j -J report_json.json -w report_md.md -r report_html.html'
+        docker_name: 'owasp/zap2docker-stable'  # Ensure this is the correct Docker image
+    
