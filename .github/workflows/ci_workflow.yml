@@ -18,5 +18,5 @@ jobs:
     - name: Start OWASP ZAP
       uses: zaproxy/action-baseline@v0.2.0
       with:
-        target: 'https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/'  # Replace with your web application's URL
+        target: 'https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/'  
         cmd_options: '-a -j'
