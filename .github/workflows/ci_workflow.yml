@@ -34,4 +34,4 @@ jobs:
         run: docker pull ictu/zap2docker-weekly
       - name: Run ZAP API Scan
         run: | 
-          sudo docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-weekly zap-api-scan.py -t openapi.json -f openapi -c api-scan.conf
+          sudo docker run -v $(pwd):/zap/wrk/:rw -t ictu/zap2docker-weekly zap-api-scan.py -t openapi.json -f openapi -c api-scan.conf
