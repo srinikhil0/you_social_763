@@ -1,4 +1,46 @@
-name: OWASP ZAP CI Scan
+# name: OWASP ZAP CI Scan
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     branches:
+#       - main
+#   workflow_dispatch:
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     name: sanity check of git actions
+    
+#     steps:
+#     - uses: actions/checkout@v2
+#     - name: Run a one-line script
+#       run: echo no error. Do the necessary build steps here.
+    
+#   scans:
+#     runs-on: ubuntu-latest
+#     name: Zap API Scan
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+#       - name: Log current directory
+#         run: echo ${pwd}
+#       - name: Pull ZAP OWASP Image
+#         run: docker pull ictu/zap2docker-weekly
+#       - name: Run ZAP Scan
+#         run: |
+#           docker run --rm -v $(pwd):/zap/wrk/:rw -t ictu/zap2docker-stable zap-full-scan.py -t https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/ -r zap_report.html
+#       - name: Upload ZAP Report
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: ZAP-Report
+#           path: zap_report.html
+
+
+
+name: OWASP ZAP Security Scan
 
 on:
   push:
@@ -10,30 +52,39 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  zap_security_scan:
     runs-on: ubuntu-latest
-    name: sanity check of git actions
-    
+    name: Run OWASP ZAP Security Scan
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Run a one-line script
-      run: echo no error. Do the necessary build steps here.
-    
-  scans:
-    runs-on: ubuntu-latest
-    name: Zap API Scan
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Log current directory
-        run: echo ${pwd}
-      - name: Pull ZAP OWASP Image
-        run: docker pull ictu/zap2docker-weekly
-      - name: Run ZAP Scan
-        run: |
-          docker run --rm -v $(pwd):/zap/wrk/:rw -t ictu/zap2docker-stable zap-full-scan.py -t https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/ -r zap_report.html
-      - name: Upload ZAP Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: ZAP-Report
-          path: zap_report.html
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install ZAP
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y zaproxy
+
+    - name: Install zap-cli
+      run: |
+        sudo pip install zapcli
+
+    - name: Start ZAP
+      run: |
+        zap-cli start
+
+    - name: Run ZAP Scan
+      run: |
+        zap-cli open-url https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/
+        zap-cli active-scan -r https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/
+        zap-cli report -o zap_report.html -f html
+
+    - name: Stop ZAP
+      run: |
+        zap-cli stop
+
+    - name: Upload ZAP Report
+      uses: actions/upload-artifact@v2
+      with:
+        name: ZAP-Report
+        path: zap_report.html
