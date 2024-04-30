@@ -1,6 +1,12 @@
 <?php
 
 require '../config/config.php';
+require_once 'vendor/autoload.php'; // Load PHPMailer
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
 
 
 $msg = "";
@@ -19,28 +25,31 @@ if(isset($_POST['recover'])){
         $last_name = $row['last_name'];
         $vkey = $row['vkey'];
         
-        $mail = require __DIR__ . "\mailer.php";
-        $mail->setFrom("noreply@example.com", "You.Social");
+        $mail->isSMTP();
+        $mail->Host = $_ENV['SMTP_HOST'];
+        $mail->SMTPAuth = true;
+        $mail->Username = $_ENV['SMTP_USER'];
+        $mail->Password = $_ENV['SMTP_PASSWORD'];
+        $mail->SMTPSecure = $_ENV['SMTP_SECURE'];
+        $mail->Port = $_ENV['SMTP_PORT'];
+
+        $mail->setFrom($_ENV['SMTP_FROM_EMAIL'], $_ENV['SMTP_FROM_NAME']);
         $mail->addAddress($email);
+
         $mail->isHTML(true);
-        $mail->Subject = "Password Reset";
-        $mail->Body    = "Dear {$last_name}, <br><br> To reset your password <a href='http://localhost/studentsasylum/verification/reset_password.php?vkey={$vkey}'>Click Here</a>";
-        
+
+        $mail->Subject = 'Forgot Password';
+        $mail->Body    = "Dear {$last_name}, <br><br> To reset your password <a href='<a href='https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/verification/reset_password.php?vkey={$vkey}'>Click Here</a>";
+        $mail->AltBody = 'Please use the following link to verify your account: https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/verification/reset_password.php?vkey=' . $vkey;
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
 
-      try {
         $mail->send();
-        $msg = "Please check your email for further instructions";
-      }
-      catch (Exception $e){
-        echo "Message could not be sent. Mailer error: {$mail->ErrorInfo}";
+        echo 'Please check your email for further Instructions';
       }
     }
-    $stmt->close();
 
-    }
-}
+  }
 
 ?>
 

@@ -1,7 +1,7 @@
 <?php
 require '../config/config.php'; // Ensure this config file sets up $con appropriately.
 
-session_start(); // Start a session if you are going to use session variables post verification.
+// session_start(); // Start a session if you are going to use session variables post verification.
 
 if (isset($_GET['vkey'])) {
     $vkey = $_GET['vkey'];

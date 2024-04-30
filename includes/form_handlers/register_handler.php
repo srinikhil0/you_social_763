@@ -23,8 +23,8 @@ function sendVerificationEmail($email, $vkey) {
 
         $mail->isHTML(true);
         $mail->Subject = 'Account Verification';
-        $mail->Body    = "Please click on the following link to verify your account: <a href='http://localhost/you_social_763/verification/verify.php?vkey=$vkey'>Verify Account</a>";
-        $mail->AltBody = 'Please use the following link to verify your account: http://localhost/you_social_763/verification/verify.php?vkey=' . $vkey;
+        $mail->Body    = "Please click on the following link to verify your account: <a href='https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/verification/verify.php?vkey=$vkey'>Verify Account</a>";
+        $mail->AltBody = 'Please use the following link to verify your account: https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/verification/verify.php?vkey=' . $vkey;
 
         $mail->send();
         echo 'Verification email has been sent.';
