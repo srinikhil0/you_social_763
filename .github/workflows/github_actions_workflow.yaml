@@ -23,5 +23,5 @@ jobs:
         with:
             args: >
                 -Dsonar.organization=you-social
-                -Dsonar.projectKey=you_social_763
+                -Dsonar.projectKey=You.Social
                 -Dsonar.python.coverage.reportPaths=coverage.xml
