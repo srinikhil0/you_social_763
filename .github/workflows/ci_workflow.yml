@@ -31,7 +31,7 @@ jobs:
         run: docker pull ictu/zap2docker-weekly
       - name: Run ZAP Scan
         run: |
-          docker run --rm -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py -t https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/ -r zap_report.html
+          docker run --rm -v $(pwd):/zap/wrk/:rw -t ictu/zap2docker-stable zap-full-scan.py -t https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/ -r zap_report.html
       - name: Upload ZAP Report
         uses: actions/upload-artifact@v2
         with:
