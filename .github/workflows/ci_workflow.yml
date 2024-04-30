@@ -27,7 +27,7 @@ jobs:
 
       - name: Trigger ZAP API Scan
         run: |
-          curl http://localhost:8090/JSON/ascan/action/scan/?url= https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/register.php&recurse=true&inScopeOnly=false&scanPolicyName=&method=&postData=true&contextId=
+          curl http://localhost:8090/JSON/ascan/action/scan/?url=https://0cf7-38-42-234-45.ngrok-free.app/you_social_763/register.php&recurse=true&inScopeOnly=false&scanPolicyName=&method=&postData=true&contextId=
 
       - name: Fetch ZAP Scan Report
         run: |
